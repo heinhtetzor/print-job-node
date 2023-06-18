@@ -29,17 +29,28 @@ const sendToPrinter = (dataToPrint) => {
     const printer = new escpos.Printer(device, options);
 
 
-    const width = 400;
-    const height = 250;
+    const width = 570;
+    const height = 200;
 
     const canvas = createCanvas(width, height);
     const context = canvas.getContext("2d");
 
     context.fillStyle = "#fff";
     context.fillRect(0, 0, width, height);
+
+    context.fillStyle = "#000";
+    context.font = 'bold 22pt Arial';
+    context.fillText("11:32 AM 18-Jun-2023", 10, 50);
     
     context.fillStyle = "#000";
-    context.fillText("နေကောင်းလား", 10, 10);
+    context.font = 'bold 22pt Arial';
+    context.fillText("2 x", 10, 100);
+
+    context.font = 'bold 22pt Arial';
+    context.fillText("ကြက်သားဟင်း", 80, 100);
+
+    context.font = 'bold 22pt Arial';
+    context.fillText("Ouk Kur Min", 10, 180);
 
     const buffer = canvas.toBuffer("image/jpeg");
     const imgPath = `./store-1-order-111.png`;
