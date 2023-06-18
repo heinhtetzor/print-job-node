@@ -4,9 +4,10 @@ import 'dotenv/config';
 import escpos from 'escpos';
 import Network from 'escpos-network';
 
-import { createCanvas } from 'canvas';
 import * as fs from "fs";
 import Image from 'escpos';
+
+import sharp from 'sharp';
 
 const apiHost = process.env.API_HOST;
 const storeId = process.env.STORE_ID;
@@ -23,38 +24,39 @@ const callApi = async () => {
     sendToPrinter(data);
 }
 
-const sendToPrinter = (dataToPrint) => {
+const sendToPrinter = async (dataToPrint) => {
     const device = new Network(printer1Address, 9100);
     const options = { encoding: "GB18030" /* default */ }
     const printer = new escpos.Printer(device, options);
 
+    const imgPath = `./store-1-order-111.png`;
+    const bgPath = `./default-white.png`;
 
     const width = 570;
     const height = 200;
 
-    const canvas = createCanvas(width, height);
-    const context = canvas.getContext("2d");
+    const svgText = `
+    <svg width="${width}" height="${height}">
+        <style>
+        .datetime, .waiter {
+            font-size: 22px;
+        }
+        .menu, .qty {
+            font-size: 30px;
+        }
+        </style>
+        <text class="datetime" x="5%" y="15%">11:32 AM 18-Jun-2023</text>
+        <text class="qty" x="5%" y="50%">2 x</text>
+        <text class="menu" x="20%" y="50%">ကြက်သားဟင်း</text>
+        <text class="waiter" x="5%" y="80%">Ouk Kur Min</text>
+    </svg>
+    `;
 
-    context.fillStyle = "#fff";
-    context.fillRect(0, 0, width, height);
+    const svgBuffer = Buffer.from(svgText);
 
-    context.fillStyle = "#000";
-    context.font = 'bold 22pt Arial';
-    context.fillText("11:32 AM 18-Jun-2023", 10, 50);
-    
-    context.fillStyle = "#000";
-    context.font = 'bold 22pt Arial';
-    context.fillText("2 x", 10, 100);
-
-    context.font = 'bold 22pt Arial';
-    context.fillText("ကြက်သားဟင်း", 80, 100);
-
-    context.font = 'bold 22pt Arial';
-    context.fillText("Ouk Kur Min", 10, 180);
-
-    const buffer = canvas.toBuffer("image/jpeg");
-    const imgPath = `./store-1-order-111.png`;
-    fs.writeFileSync(imgPath, buffer);
+    sharp(bgPath)
+    .composite([{input: svgBuffer}])
+    .toFile(imgPath);
 
     device.open(function(error){
         if (error) {
@@ -64,33 +66,8 @@ const sendToPrinter = (dataToPrint) => {
         Image.load(imgPath, image => {
             console.log("printing the image...");
             printer
-            .align('ct')
             .image(image)
         });
-
-        
-
-    //     printer
-    //     .font('a')
-    //     .align('ct')
-    //     .style('bu')
-    //     .size(1, 1)
-    //     .text('The quick brown fox jumps over the lazy dog')
-    //     .text('နေကောင်းလား')
-    //     .barcode('1234567', 'EAN8')
-    //     .table(["One", "Two", "Three"])
-    //     .tableCustom(
-    //       [
-    //         { text:"Left", align:"LEFT", width:0.33, style: 'B' },
-    //         { text:"Center", align:"CENTER", width:0.33},
-    //         { text:"Right", align:"RIGHT", width:0.33 }
-    //       ],
-    //       { encoding: 'cp857', size: [1, 1] } // Optional
-    //     )
-    //     .qrimage('https://github.com/song940/node-escpos', function(err){
-    //       this.cut();
-    //       this.close();
-    //     });
     });
 }
 
