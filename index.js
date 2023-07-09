@@ -82,6 +82,7 @@ const cleanUpDir = () => {
 
 const callApi = async () => {
     let data;
+    console.log("Calling remote api...");
     try {
         const resp = await fetch (apiHost + '/print-jobs/process', 
         {
@@ -94,6 +95,7 @@ const callApi = async () => {
     }
     catch (err) {
         console.error(err);
+        throw err;
     }
     
     for (const dataToPrint of data) {
