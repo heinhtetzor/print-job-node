@@ -95,7 +95,6 @@ const callApi = async () => {
     }
     catch (err) {
         console.error(err);
-        throw err;
     }
     
     for (const dataToPrint of data) {
@@ -123,5 +122,11 @@ const processExpressSlip = async (dataToPrint) => {
 
 
 setInterval (async () => {
-    await callApi();
+	try {
+		await callApi();
+	} 
+	catch (err) {
+		console.log("Error. Proceeding...");
+	}
+
 }, process.env.REFRESH_INTERVAL_SEC * 1000);
